@@ -17,7 +17,7 @@ include './auth/connection.php';
 
 <body>
   <nav class="fixed-top d-flex align-items-center justify-content-between px-5">
-    <a href=".././" class="logo fs-4 d-inline-flex gap-3">z-Ĥotel.<span class="logo-title d-inline-flex">Designed
+    <a href="/z-hotel-crud" class="logo fs-4 d-inline-flex gap-3">z-Ĥotel.<span class="logo-title d-inline-flex">Designed
         by <br> Zikri Mansyursyah</span> </a>
     <div class="menu fs-5 fw-light d-flex gap-3">
       <a href="#produk" class="menu-list px-3 py-1">Produk</a>
@@ -278,12 +278,16 @@ include './auth/connection.php';
               </div>
             </div>
             <div class="form-floating mb-3">
-              <input type="number" class="form-control" id="nik" name="nik" required>
+              <input type="number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" class="form-control" id="nik" name="nik" maxlength="16" required>
               <label for="nik">Nomor Identitas</label>
             </div>
-            <div class="form-floating mb-3">
-              <input type="text" class="form-control" value="" id="tipe_kamar" name="tipe_kamar" readonly>
-              <label for="tipe_kamar">Tipe Kamar</label>
+            <label for="" class="jenis-kelamin">Tipe Kamar</label>
+            <div class="kategori input-group mb-3">
+              <select class="form-select" id="tipe_kamar" name="tipe_kamar" style="height:3rem;" onchange="changeTipe()">
+                <option selected class="title" value="Standar">Standar</option>
+                <option value="Deluxe">Deluxe</option>
+                <option value="Executive">Executive</option>
+              </select>
             </div>
             <div class="form-floating mb-3">
               <input type="number" class="form-control" value="" id="harga" name="harga" readonly>
@@ -335,7 +339,7 @@ include './auth/connection.php';
   </div>
 
   <!-- modal Validasi -->
-  <div class="modal" id="validasi" tabindex="-1">
+  <!-- <div class="modal" id="validasi" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content w-auto">
         <div class="modal-header">
@@ -347,36 +351,48 @@ include './auth/connection.php';
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <!-- Bootstrap JS -->
   <script src="./assets/js/bootstrap.bundle.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
   <script>
-    $("#submit-pesan").hide()
-
-    $("#durasi_menginap, #breakfast").change(() => {
-      $("#submit-pesan").hide()
+    //jika id tersebut terdapat perubahan maka total harga akan dihitung ulang
+    $("#durasi_menginap, #breakfast, #nik, #tanggal_pesan, #tipe_kamar").change(() => {
+      hitungBayar()
     })
 
+    function changeTipe() {
+      let tipe = document.getElementById("tipe_kamar").value
+      console.log('yes', tipe);
+      if (tipe == 'Standar') {
+        $("#harga").attr("value", 2000000)
+      } else if (tipe == 'Deluxe') {
+        $("#harga").attr("value", 5000000)
+      } else if (tipe == 'Executive') {
+        $("#harga").attr("value", 10000000)
+      }
+
+    }
+
+    //untuk menambahkan atribut onclick pada class terkait untuk dapat menampilkan video ruangan
     $(".hotel-img.first").attr("onclick", "setVideo('https://www.youtube.com/embed/V0ZmEre9PIU')")
     $(".hotel-img.second").attr("onclick", "setVideo('https://www.youtube.com/embed/6T-ZAVkdtI8?start=120')")
     $(".hotel-img.third").attr("onclick", "setVideo('https://www.youtube.com/embed/9AYKS4DVIqU?start=120')")
 
-    $("#submit-pesan").click(() => {
-      $("#validasi").modal("show")
-    })
-
+    //fungsi untuk merubah value modal video sesuai video ruangan
     function setVideo(link) {
       $("#yt-video").attr("src", link)
     }
 
+    //untuk membuat value dari tipe kamar dan harga otomatis terisi sesuai dengan kamar yang dipilih
     function setRoom(name, price) {
       $("#tipe_kamar").attr("value", name)
       $("#harga").attr("value", price)
     }
 
+    //fungsi untuk menghitung total bayar 
     function hitungBayar() {
       const nik = document.getElementById("nik").value
       const harga = Number(document.getElementById("harga").value)
@@ -398,8 +414,10 @@ include './auth/connection.php';
       }
     }
 
+    //fungsi untuk men trigger ketika modal form ditutup maka form di reset value nya
     $('#pesan').on('hidden.bs.modal', function() {
       $(this).find('form').trigger('reset');
+      document.getElementById("total_bayar").setAttribute("value", "")
     })
   </script>
 </body>
